@@ -36,26 +36,25 @@ JsMacros.on("RecvMessage", false, JavaWrapper.methodToJava((event) => {
 
 // catch and recast fishes while also rotating the head
 JsMacros.on("Sound", false, JavaWrapper.methodToJava((event) => {
-    if (event.sound == "minecraft:entity.fishing_bobber.splash") {
+    if (event.sound == "minecraft:entity.fishing_bobber.splash" &&
+        (Player.getPlayer().getMainHand().getItemId() == "minecraft:fishing_rod" ||
+            Player.getPlayer().getOffHand().getItemId() == "minecraft:fishing_rod")) {
         Time.sleep(Math.floor(Math.random() * 150) + 150);
         KeyBind.keyBind("key.use", true);
         Time.sleep(Math.floor(Math.random() * 40) + 30);
         KeyBind.keyBind("key.use", false);
 
         // recast only if holding a fishing rod
-        if ((Player.getPlayer().getMainHand().getItemId() == "minecraft:fishing_rod" ||
-            Player.getPlayer().getOffHand().getItemId() == "minecraft:fishing_rod")) {
-            Time.sleep(Math.floor(Math.random() * 200) + 200);
-            smooth_look(Player.getPlayer().getYaw(),
-                Math.random() * 130 - 20,
-                Player.getPlayer().getPitch(),
-                Math.random() * 14 + 12
-            );
-            Time.sleep(Math.floor(Math.random() * 200) + 200);
+        Time.sleep(Math.floor(Math.random() * 200) + 200);
+        smooth_look(Player.getPlayer().getYaw(),
+            Math.random() * 130 - 20,
+            Player.getPlayer().getPitch(),
+            Math.random() * 14 + 12
+        );
+        Time.sleep(Math.floor(Math.random() * 200) + 200);
 
-            KeyBind.keyBind("key.use", true);
-            Time.sleep(Math.floor(Math.random() * 40) + 30);
-            KeyBind.keyBind("key.use", false);
-        }
+        KeyBind.keyBind("key.use", true);
+        Time.sleep(Math.floor(Math.random() * 40) + 30);
+        KeyBind.keyBind("key.use", false);
     }
 }));

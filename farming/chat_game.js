@@ -3,17 +3,17 @@ function solveMathProblem(text) {
     if (text.includes('→') || !text.includes("'")) {
         return;
     } else if (text.includes("The first to type")) {
-        var answer = text.split("'")[1];
-        answer = answer.toLowerCase();
+        // var answer = text.split("'")[1];
+        // answer = answer.toLowerCase();
 
-        Client.waitTick(Math.floor(Math.random() * 15 + 40));
-        Chat.say(answer);
+        // Client.waitTick(Math.floor(Math.random() * 15 + 40));
+        // Chat.say(answer);
     } else if (text.includes("The first to unreverse")) {
-        var answer = text.split("'")[1];
-        answer = answer.split("").reverse().join("");
-        answer = answer.toLowerCase();
-        Client.waitTick(Math.floor(Math.random() * 15 + 44));
-        Chat.say(answer);
+        // var answer = text.split("'")[1];
+        // answer = answer.split("").reverse().join("");
+        // answer = answer.toLowerCase();
+        // Client.waitTick(Math.floor(Math.random() * 15 + 44));
+        // Chat.say(answer);
     }
     else {
         const problem = text.split("'")[1];
@@ -23,7 +23,7 @@ function solveMathProblem(text) {
                 if (isNaN(numbers[i])) failed = true;
                 numbers[i] = Number(val);
             });
-            Client.waitTick(Math.floor(Math.random() * 10 + 30));
+            Client.waitTick(Math.floor(Math.random() * 10 + 38));
             if (!failed) Chat.say(String(numbers[0] * numbers[1]));
         } else if (problem.includes('+')) {
             const numbers = problem.split(' + ');
@@ -31,8 +31,16 @@ function solveMathProblem(text) {
                 if (isNaN(numbers[i])) failed = true;
                 numbers[i] = Number(val);
             });
-            Client.waitTick(Math.floor(Math.random() * 15 + 34));
+            Client.waitTick(Math.floor(Math.random() * 15 + 50));
             if (!failed) Chat.say(String(numbers[0] + numbers[1]));
+        } else if (problem.includes('-')) {
+            const numbers = problem.split(' - ');
+            numbers.forEach((val, i) => {
+                if (isNaN(numbers[i])) failed = true;
+                numbers[i] = Number(val);
+            });
+            Client.waitTick(Math.floor(Math.random() * 10 + 40));
+            if (!failed) Chat.say(String(numbers[0] - numbers[1]));
         }
     }
 }

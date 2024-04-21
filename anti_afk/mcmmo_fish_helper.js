@@ -45,6 +45,7 @@ JsMacros.on("Sound", false, JavaWrapper.methodToJava((event) => {
         // recast only if holding a fishing rod
         if ((Player.getPlayer().getMainHand().getItemId() == "minecraft:fishing_rod" ||
             Player.getPlayer().getOffHand().getItemId() == "minecraft:fishing_rod")) {
+            Time.sleep(Math.floor(Math.random() * 200) + 300);
             smooth_look(Player.getPlayer().getYaw(),
                 Math.random() * 130 - 20,
                 Player.getPlayer().getPitch(),

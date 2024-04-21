@@ -45,13 +45,13 @@ JsMacros.on("Sound", false, JavaWrapper.methodToJava((event) => {
         // recast only if holding a fishing rod
         if ((Player.getPlayer().getMainHand().getItemId() == "minecraft:fishing_rod" ||
             Player.getPlayer().getOffHand().getItemId() == "minecraft:fishing_rod")) {
-            Time.sleep(Math.floor(Math.random() * 200) + 300);
+            Time.sleep(Math.floor(Math.random() * 200) + 200);
             smooth_look(Player.getPlayer().getYaw(),
                 Math.random() * 130 - 20,
                 Player.getPlayer().getPitch(),
                 Math.random() * 14 + 12
             );
-            Time.sleep(Math.floor(Math.random() * 450) + 700);
+            Time.sleep(Math.floor(Math.random() * 200) + 200);
 
             KeyBind.keyBind("key.use", true);
             Time.sleep(Math.floor(Math.random() * 40) + 30);

@@ -26,8 +26,16 @@ function smooth_look(yaw, pitch, steps = 60, duration = 300) {
     }
 }
 
+var player = Player.getPlayer();
+var count = 5;
+
 // check if player has weakness
-while (Player.getPlayer().hasStatusEffect("weakness")) {
-    smooth_look(Math.random() * 360, Math.random() * 170 - 85);
-    Client.waitTick(Math.floor(Math.random() * 600 + 300));
+while (true) {
+    if (player.hasStatusEffect("weakness") && count >= 0) {
+        smooth_look(Math.random() * 360, Math.random() * 170 - 85);
+        Client.waitTick(Math.floor(Math.random() * 40 + 20));
+        count--;
+    }
+    Client.waitTick(Math.floor(Math.random() * 3600 + 600));
+    count = 5;
 }

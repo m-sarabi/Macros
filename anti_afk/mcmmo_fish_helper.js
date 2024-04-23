@@ -19,20 +19,20 @@ function smooth_look(old_yaw, new_yaw, old_pitch, new_pitch, steps = 20, duratio
     };
 }
 
-// // if that area is depleted of fish, look 90 degrees to the other side
-// var randomness = 6;
-// JsMacros.on("RecvMessage", false, JavaWrapper.methodToJava((event) => {
-//     var yaw = Player.getPlayer().getYaw();
-//     var pitch = Player.getPlayer().getPitch();
-//     var text = event.text.getString().toLowerCase();
-//     if (text.includes("you sense that")) {
-//         if (yaw >= -15 && yaw <= 15) {
-//             smooth_look(yaw, randomness * (Math.random() - 0.5) + 90, pitch, pitch);
-//         } else if (yaw >= 75 && yaw <= 105) {
-//             smooth_look(yaw, randomness * (Math.random() - 0.5), pitch, pitch);
-//         }
-//     }
-// }));
+// if that area is depleted of fish, look 90 degrees to the other side
+var randomness = 6;
+JsMacros.on("RecvMessage", false, JavaWrapper.methodToJava((event) => {
+    var yaw = Player.getPlayer().getYaw();
+    var pitch = Player.getPlayer().getPitch();
+    var text = event.text.getString().toLowerCase();
+    if (text.includes("you sense that")) {
+        if (yaw >= -15 && yaw <= 15) {
+            smooth_look(yaw, randomness * (Math.random() - 0.5) + 90, pitch, pitch);
+        } else if (yaw >= 75 && yaw <= 105) {
+            smooth_look(yaw, randomness * (Math.random() - 0.5), pitch, pitch);
+        }
+    }
+}));
 
 // catch and recast fishes while also rotating the head
 JsMacros.on("Sound", false, JavaWrapper.methodToJava((event) => {

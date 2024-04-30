@@ -3,7 +3,7 @@ const crops_map = {
     "minecraft:carrots": ["minecraft:carrot", 7],
     "minecraft:potatoes": ["minecraft:potato", 7],
     "minecraft:wheat": ["minecraft:wheat_seeds", 7],
-    "minecraft:beetroots": ["minecraft:beetroot_seeds", 7],
+    "minecraft:beetroots": ["minecraft:beetroot_seeds", 3],
     "minecraft:nether_wart": ["minecraft:nether_wart", 3]
 };
 
@@ -18,25 +18,62 @@ const items_list = [
     "minecraft:wheat_seeds",
     "minecraft:beetroot_seeds"
 ];
-
+Hud.clearDraw3Ds();
+const d3d = Hud.createDraw3D().register();
 const toggle = !GlobalVars.getBoolean("farm_toggle");
 GlobalVars.putBoolean("farm_toggle", toggle);
 if (toggle) {
-    const first_pos = PositionCommon.createBlockPos(-7, 2, 14);
-    const second_pos = PositionCommon.createBlockPos(1, 2, 22);
-    if (first_pos.getY() != second_pos.getY()) {
-        Chat.log(Chat.createTextBuilder().append("Error: ").withColor(255, 0, 0).
-            append("Selected area is not flat.").withColor(255, 128, 128).build());
-        GlobalVars.putBoolean("farm_toggle", false);
-    } else {
-        Chat.log(Chat.createTextBuilder().append("Auto farm ").withColor(200, 200, 200).
-            append("Enabled").withColor(64, 255, 64).build());
-        const storage_pos = PositionCommon.createBlockPos(-8, 2, 18);
+    const poses = [];
+    Chat.log(Chat.createTextBuilder().append("Click on the first corner of the farm").withColor(0x2).build());
 
-        farm(first_pos, second_pos, storage_pos);
-        Chat.log(Chat.createTextBuilder().append("Auto farm ").withColor(200, 200, 200).
-            append("Disabled").withColor(255, 64, 64).build());
-    }
+    /** @type {Box} */
+    let area_box;
+    const box_event = JsMacros.on("Key", true, JavaWrapper.methodToJava((event, ctx) => {
+        if (event.key == "key.mouse.left" && event.action == 1) {
+            Chat.log("clicked");
+            event.cancel();
+            ctx.releaseLock();
+            const block = Player.getInteractionManager().getTargetedBlock().toPos3D();
+            if (poses.length == 0 && block != null) {
+                area_box = Hud.createDraw3D().boxBuilder().pos1(block.x, block.y, block.z).pos2(block.x + 1, block.y + 1, block.z + 1).
+                    color(0x88FF88).alpha(0x50).fillColor(0x1888FF88).fill(true).build();
+                d3d.addBox(area_box);
+                poses.push(block.x, block.y, block.z);
+                Chat.log(Chat.createTextBuilder().append("Click on the second corner of the farm (it should be a flat area)").withColor(0x2).build());
+            } else if (poses.length == 3 && block != null) {
+                if (area_box.pos.y1 != block.y) {
+                    Chat.log(Chat.createTextBuilder().append("Error: ").withColor(255, 0, 0).
+                        append("Selected area is not flat.").withColor(255, 128, 128).build());
+                    box_event.off();
+                    d3d.unregister();
+                    GlobalVars.putBoolean("farm_toggle", false);
+                } else {
+                    poses.push(block.x, block.y, block.z);
+                    area_box.setPos(Math.min(poses[0], poses[3]), poses[1], Math.min(poses[2], poses[5]),
+                        Math.max(poses[0], poses[3]) + 1, poses[1] + 1, Math.max(poses[2], poses[5]) + 1);
+                    Chat.log(Chat.createTextBuilder().append("Click on the storage block").withColor(0x2).build());
+                }
+            } else if (block != null) {
+                const storage_box = Hud.createDraw3D().boxBuilder().color(0xFF8800).alpha(0x50).fillColor(0x18FF8800).fill(true).build();
+                storage_box.setPosToBlock(block.toBlockPos());
+                d3d.addBox(storage_box);
+                poses.push(block.x, block.y, block.z);
+                prepare(poses);
+                box_event.off();
+            }
+        }
+    }));
+}
+
+function prepare(poses) {
+    Chat.log(Chat.createTextBuilder().append("Auto farm ").withColor(200, 200, 200).
+        append("Enabled").withColor(64, 255, 64).build());
+    const storage_pos = PositionCommon.createBlockPos(poses[6], poses[7], poses[8]);
+    const first_pos = PositionCommon.createBlockPos(Math.min(poses[0], poses[3]), poses[1], Math.min(poses[2], poses[5]));
+    const second_pos = PositionCommon.createBlockPos(Math.max(poses[0], poses[3]), poses[1], Math.max(poses[2], poses[5]));
+    farm(first_pos, second_pos, storage_pos);
+    Chat.log(Chat.createTextBuilder().append("Auto farm ").withColor(200, 200, 200).
+        append("Disabled").withColor(255, 64, 64).build());
 }
 
 function farm(first_pos, second_pos, storage_pos) {
@@ -44,11 +81,25 @@ function farm(first_pos, second_pos, storage_pos) {
     const grown_crops = [];
     const to_replant = [];
     let failed = [];
+    const inv = Player.openInventory();
+
+    // switch to a fortune tool if available
+    if (!player.getMainHand().hasEnchantment("minecraft:fortune")) {
+        loop: for (let level = 3; level > 0; level--) {
+            for (let i = 0; i < 36; i++) {
+                if (inv.getSlot(i).hasEnchantment("fortune") && inv.getSlot(i).getEnchantment("Fortune").getLevel() == level) {
+                    inv.swapHotbar(i, inv.getSelectedHotbarSlotIndex());
+                    Client.waitTick();
+                    break loop;
+                }
+            }
+        }
+    }
 
     /** @type {BlockPosHelper} */
     let crop;
 
-    Chat.log("started farming");
+    Chat.actionbar(Chat.createTextBuilder().append("credits: ").withColor(0x2).append("Funzen").withColor(0x6).build());
     while (GlobalVars.getBoolean("farm_toggle")) {  // replace with toggle
         World.iterateBox(first_pos, second_pos, true, JavaWrapper.methodToJava((block) => {
             if (Object.keys(crops_map).includes(block.getId()) && block.getBlockState()["age"] == crops_map[block.getId()][1]) {
@@ -57,6 +108,7 @@ function farm(first_pos, second_pos, storage_pos) {
             }
         }));
         while (grown_crops.length > 0) {
+            if (!GlobalVars.getBoolean("farm_toggle")) return;
             grown_crops.sort((a, b) => {
                 if (player.distanceTo(a) > player.distanceTo(b)) return 1;
                 return -1;
@@ -94,6 +146,10 @@ function break_crop(crop) {
         player.lookAt(crop.getX() + 0.5, crop.getY(), crop.getZ() + 0.5);
         KeyBind.keyBind("key.forward", true);
         while (player.distanceTo(crop) > 2) {
+            if (!GlobalVars.getBoolean("farm_toggle")) {
+                KeyBind.keyBind("key.forward", false);
+                return;
+            };
             Client.waitTick();
         }
     }
@@ -108,6 +164,7 @@ function replant_crop(to_replant) {
     const inv = Player.openInventory();
     const failed = [];
     while (to_replant.length > 0) {
+        if (!GlobalVars.getBoolean("farm_toggle")) return;
         land = to_replant.pop();
         if (player.getOffHand().getItemId() != crops_map[land[0]][0]) {
             let item = inv.findItem(crops_map[land[0]][0]);
@@ -118,12 +175,29 @@ function replant_crop(to_replant) {
                 inv.swapHotbar(item[0], 40);
             }
         }
+        if (player.distanceTo(land[1]) > 4) {
+            player.lookAt(land[1].getX() + 0.5, land[1].getY(), land[1].getZ() + 0.5);
+            KeyBind.keyBind("key.forward", true);
+            while (player.distanceTo(land[1]) > 2) {
+                if (!GlobalVars.getBoolean("farm_toggle")) {
+                    KeyBind.keyBind("key.forward", false);
+                    return;
+                };
+                Client.waitTick();
+            }
+        }
+        KeyBind.keyBind("key.forward", false);
         Player.getInteractionManager().interactBlock(land[1].getX(), land[1].getY(), land[1].getZ(), "up", true);
         Client.waitTick(2);
     }
     return failed;
 }
 
+/**
+ * 
+ * @param {BlockPosHelper} first_pos 
+ * @param {BlockPosHelper} second_pos 
+ */
 function pick_items(first_pos, second_pos) {
     const player = Player.getPlayer();
     let items = World.getEntities();
@@ -138,14 +212,23 @@ function pick_items(first_pos, second_pos) {
         return false;
     });
     while (items.length > 0) {
-        let item = items.pop();
+        if (!GlobalVars.getBoolean("farm_toggle")) return;
+        let item = items.shift();
         player.lookAt(item.getX(), item.getY(), item.getZ());
 
         KeyBind.keyBind("key.forward", true);
         while (player.distanceTo(item.getPos()) > 1) {
+            if (!GlobalVars.getBoolean("farm_toggle")) {
+                KeyBind.keyBind("key.forward", false);
+                return;
+            };
             Client.waitTick();
         }
         KeyBind.keyBind("key.forward", false);
+        items.sort((a, b) => {
+            if (player.distanceTo(a) > player.distanceTo(b)) return 1;
+            return -1;
+        });
     }
 }
 
@@ -166,6 +249,10 @@ function store_items(storage_pos) {
         player.lookAt(storage_pos.getX() + 0.5, storage_pos.getY() + 0.5, storage_pos.getZ() + 0.5);
         KeyBind.keyBind("key.forward", true);
         while (player.distanceTo(storage_pos) > 3) {
+            if (!GlobalVars.getBoolean("farm_toggle")) {
+                KeyBind.keyBind("key.forward", false);
+                return;
+            };
             Client.waitTick();
         }
         KeyBind.keyBind("key.forward", false);

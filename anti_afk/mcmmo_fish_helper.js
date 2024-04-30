@@ -57,3 +57,8 @@ JsMacros.on("Sound", false, JavaWrapper.methodToJava((event) => {
 
 // mods:
 // Seraphiael
+// culturedswine19
+// Cassana_Apl
+// ExeosCraft
+// Horus_Apl
+// moonsycat

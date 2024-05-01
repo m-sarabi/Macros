@@ -30,7 +30,6 @@ if (toggle) {
     let area_box;
     const box_event = JsMacros.on("Key", true, JavaWrapper.methodToJava((event, ctx) => {
         if (event.key == "key.mouse.left" && event.action == 1) {
-            Chat.log("clicked");
             event.cancel();
             ctx.releaseLock();
             const block = Player.getInteractionManager().getTargetedBlock().toPos3D();
@@ -100,7 +99,7 @@ function farm(first_pos, second_pos, storage_pos) {
     let crop;
 
     Chat.actionbar(Chat.createTextBuilder().append("credits: ").withColor(0x2).append("Funzen").withColor(0x6).build());
-    while (GlobalVars.getBoolean("farm_toggle")) {  // replace with toggle
+    while (GlobalVars.getBoolean("farm_toggle")) {
         World.iterateBox(first_pos, second_pos, true, JavaWrapper.methodToJava((block) => {
             if (Object.keys(crops_map).includes(block.getId()) && block.getBlockState()["age"] == crops_map[block.getId()][1]) {
                 const b = block.getBlockPos();
@@ -139,7 +138,6 @@ function farm(first_pos, second_pos, storage_pos) {
  * @param {BlockPosHelper} crop 
  */
 function break_crop(crop) {
-    // Player.openInventory().setSelectedHotbarSlotIndex(0)
     const player = Player.getPlayer();
     Client.waitTick(2);
     if (player.distanceTo(crop) > 4) {
@@ -276,7 +274,6 @@ function store_items(storage_pos) {
             crop_slots.push(i);
         }
     }
-    // Client.waitTick(20);
     while (empty_slots > 0 && crop_slots.length > 0) {
         inv.quick(crop_slots.pop());
         Client.waitTick();

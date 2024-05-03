@@ -275,12 +275,26 @@ function clean_item_chests(pos, item_chests) {
     return item_chests;
 }
 
+/**
+ * Sorts the items stored in the chests based on the signs.
+ * The sorting is done by picking the first chest from the list, 
+ * picking the item from the chest and putting it in the first 
+ * available storage location. If the storage is full, the 
+ * storage location is removed from the list of the item.
+ * 
+ * The function stops when there are no more chests to sort or 
+ * when there are no items left to sort.
+ */
 function sort() {
-    const sort_chests = find_sign("sort").map(sign_to_chest);
-    let item_chests = find_items_storage();
+    const sort_chests = find_sign("sort").map(sign_to_chest);  // list of chests to sort
+    let item_chests = find_items_storage();  // dictionary of storage locations for each item
     let inv;
+
+    // Main loop for each chest sorting chest
     while (sort_chests.length > 0) {
-        if (stop()) return;
+        if (stop()) return;  // checks if script is being stopped/interrupted
+
+        // open the chest and pick the items and keep track of them
         open_chest(sort_chests[0]);
         if (stop()) return;
         Client.waitTick(5);
@@ -290,7 +304,7 @@ function sort() {
         for (const slot of inv.getMap().container) {
             const item_id = inv.getSlot(slot).getItemId().split(":")[1];
             if (Object.keys(item_chests).includes(item_id)) {
-                if (find_item_in_player("minecraft:air", inv).length == 0) {
+                if (find_item_in_player("minecraft:air", inv).length == 0) {  // check if player inventory is full
                     break;
                 }
                 items.push(item_id);
@@ -298,6 +312,8 @@ function sort() {
                 Client.waitTick();
             }
         }
+
+        // if there were no items to pick up, or inventory is empty, discard that chest
         if (items.length == 0 || is_container_empty(inv, item_chests)) {
             sort_chests.shift();
         }
@@ -305,18 +321,23 @@ function sort() {
         inv.closeAndDrop();
         Client.waitTick(5);
 
+        // loop through each item that needs to be sorted
         while (items.length > 0) {
             if (stop()) return;
 
+            // if item is removed from sorting elsewhere, discard that
             if (!Object.hasOwn(item_chests, items[0])) {
                 items.shift();
                 continue;
             }
-            const storage = item_chests[items[0]][0];
+
+            const storage = item_chests[items[0]][0];  // pick the first storage location for the item and open it
             open_chest(storage);
             Client.waitTick(5);
             let inv = Player.openInventory();
             Client.waitTick(5);
+
+            // if storage is full, discard that and handle the items accordingly
             if (is_container_full(inv)) {
                 item_chests = clean_item_chests(storage, item_chests);
                 if (!Object.hasOwn(item_chests, items[0])) {
@@ -327,6 +348,8 @@ function sort() {
                 Client.waitTick(5);
                 continue;
             }
+
+            // Pick up the item from the player and put it in the storage
             inv.quickAll(find_item_in_player(items[0], inv)[0]);
             if (find_item_in_player(items[0], inv).length == 0) {
                 items.shift();
@@ -336,6 +359,8 @@ function sort() {
                 continue;
             }
             Client.waitTick();
+
+            // handle it when storage is full
             if (is_container_full(inv)) {
                 item_chests[items[0]].shift();
                 if (item_chests[items[0]].length == 0) {

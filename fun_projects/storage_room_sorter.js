@@ -208,6 +208,7 @@ function sign_to_chest(sign) {
  * @returns {number[]} found item slots
  */
 function find_item_in_player(item, inv) {
+    if (stop()) return;
     Client.waitTick();
     const result = [];
 
@@ -247,6 +248,7 @@ function is_container_empty(inv, item_chests) {
  * @returns 
  */
 function is_container_full(inv) {
+    if (stop()) return;
     for (const i of inv.getMap().container) {
         if (inv.getSlot(i).getItemId() == "minecraft:air") {
             return false;

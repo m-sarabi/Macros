@@ -68,7 +68,7 @@ function smoothLook(x, y, z, speed = 2) {
     let midYaw;
     let midPitch;
 
-    // yaw and old_yaw correction
+    // yaw and oldYaw correction
     if (yaw < oldYaw) yaw += 360;
     if (yaw - oldYaw > 180) oldYaw += 360;
 
@@ -272,11 +272,11 @@ function isContainerFull(inv) {
 }
 
 /**
- * cleans up the item_chests by removing a position from it
+ * cleans up the itemChests by removing a position from it
  * @param {Pos3D} pos the storage location to be removed
  * @param {Record<string,Pos3D[]>} itemChests
  */
-function clean_item_chests(pos, itemChests) {
+function cleanItemChests(pos, itemChests) {
     for (const item in itemChests) {
         if (itemChests[item].some((e) => [e.x, e.y, e.z].every((v, i) => v == [pos.x, pos.y, pos.z][i]))) {
             itemChests[item].splice(itemChests[item].indexOf(pos), 1);
@@ -318,12 +318,12 @@ function sort() {
         Client.waitTick(5);
         const items = [];
         for (const slot of inv.getMap().container) {
-            const item_id = inv.getSlot(slot).getItemId().split(':')[1];
-            if (Object.keys(itemChests).includes(item_id)) {
+            const itemId = inv.getSlot(slot).getItemId().split(':')[1];
+            if (Object.keys(itemChests).includes(itemId)) {
                 if (findItemInPlayer('minecraft:air', inv).length == 0) { // check if player inventory is full
                     break;
                 }
-                items.push(item_id);
+                items.push(itemId);
                 inv.quickAll(slot);
                 Client.waitTick();
             }
@@ -355,7 +355,7 @@ function sort() {
 
             // if storage is full, discard that and handle the items accordingly
             if (isContainerFull(inv)) {
-                itemChests = clean_item_chests(storage, itemChests);
+                itemChests = cleanItemChests(storage, itemChests);
                 if (!Object.hasOwn(itemChests, items[0])) {
                     items.shift();
                 }

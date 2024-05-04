@@ -2,6 +2,7 @@ const player = Player.getPlayer();
 const RegistryHelper = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.RegistryHelper');
 const rawItems = new RegistryHelper().getItems();
 const ITEMS = [];
+const draw3d = Hud.createDraw3D().register();
 
 for (const item of rawItems) {
     ITEMS.push([item.getId().split(':')[1], item.getName().toLowerCase()]);
@@ -25,10 +26,16 @@ if (GlobalVars.getBoolean('storageSorterRunning')) {
 
 /**
  * Check if storage sorter is disabled
+ * @param {Draw3D} draw3d
  * @returns {boolean} true if storage sorter is disabled
  */
 function stop() {
-    return !GlobalVars.getBoolean('storageSorterToggle');
+    if (GlobalVars.getBoolean('storageSorterToggle')) {
+        return false;
+    }
+    if (draw3d) draw3d.unregister();
+    JsMacros.disableAllListeners("AttackBlock");
+    return true;
 }
 
 /**
@@ -77,6 +84,7 @@ function smoothLook(x, y, z, speed = 2) {
 
     // smoothly rotate the player with a small delay in between
     for (let i = 0; i < steps; i++) {
+        if (stop()) return;
         midYaw = oldYaw + (yaw - oldYaw) / steps * (i + 1);
         midPitch = oldPitch + (pitch - oldPitch) / steps * (i + 1);
         player.lookAt(midYaw, midPitch);
@@ -98,10 +106,10 @@ function pos3dToArray(pos) {
  * @param {string} text
  * @returns {Pos3D[]} a list of all signs that have the text
  */
-function findSign(text) {
+function findSign(text, bounds) {
     // world scanner for wall signs and scanning 3 chunk radius around the player
     const scanner = World.getWorldScanner().withStringBlockFilter().contains('wall_sign').build();
-    const signs = scanner.scanAroundPlayer(3);
+    const signs = scanner.scanAroundPlayer(3).filter(pos => isInsideBox(pos, bounds.min, bounds.max));
 
     /** @type {Pos3D[]} */
     const matches = [];
@@ -128,10 +136,10 @@ function findSign(text) {
  * @return {Record<String, Pos3D[]>} A record of item IDs as keys and arrays of Pos3D objects as values,
  * representing the storage locations for each item.
  */
-function findItemsStorage() {
+function findItemsStorage(bounds) {
     // world scanner for wall signs and scanning 3 chunk radius around the player
     const scanner = World.getWorldScanner().withStringBlockFilter().contains('wall_sign').build();
-    const signs = scanner.scanAroundPlayer(3);
+    const signs = scanner.scanAroundPlayer(3).filter(pos => isInsideBox(pos, bounds.min, bounds.max));
 
     /** @type {Record<String,Pos3D>} */
     const storages = {};
@@ -189,12 +197,12 @@ function moveTo(pos) {
  * @param {Pos3D} chest the position of the chest
  */
 function openChest(chest) {
-    if (stop()) return;
-
     // turn toward the chest an move to
     smoothLook(...pos3dToArray(chest));
     Client.waitTick();
-    if (moveTo(chest)) smoothLook(...pos3dToArray(chest));
+    if (moveTo(chest)) {
+        smoothLook(...pos3dToArray(chest));
+    }
     if (stop()) return;
 
     // interact with the chest
@@ -222,7 +230,6 @@ function signToChest(sign) {
  * @returns {number[]} found item slots
  */
 function findItemInPlayer(item, inv) {
-    if (stop()) return;
     Client.waitTick();
     const result = [];
 
@@ -262,7 +269,6 @@ function isContainerEmpty(inv, itemChests) {
  * @returns
  */
 function isContainerFull(inv) {
-    if (stop()) return;
     for (const i of inv.getMap().container) {
         if (inv.getSlot(i).getItemId() == 'minecraft:air') {
             return false;
@@ -292,6 +298,59 @@ function cleanItemChests(pos, itemChests) {
 }
 
 /**
+ * Instructs the player to select two points in the world,
+ * @returns {Record<String, Pos3D>}
+ */
+function selectPoints() {
+    /** @type {Pos3D[]} */
+    let blocks = [];
+    Chat.log(Chat.createTextBuilder().append("Select the two corners of the storage room")
+        .withColor(0x2).build());
+
+    for (let i = 0; i < 2; i++) {
+        let points = blocks.length;
+        const ev = JsMacros.on("AttackBlock", JavaWrapper.methodToJava((event, ctx) => {
+            ctx.releaseLock();
+            const block = event.block.getBlockPos();
+            blocks.push(block.toPos3D());
+            draw3d.addBox(Hud.createDraw3D().boxBuilder(block).color(0x00FF00).build());
+            Chat.actionbar(Chat.createTextBuilder().append(`Pos${i + 1} is selected`).withColor(0x2).build());
+            ev.off();
+        }));
+        while (blocks.length < 2 && blocks.length == points) {
+            Client.waitTick();
+            if (stop()) {
+                ev.off();
+                return;
+            }
+        }
+    }
+
+    // Returns two selected Pos3D points, each point is a different corner of a box
+    const Pos3D = Java.type('xyz.wagyourtail.jsmacros.client.api.classes.math.Pos3D');
+    return {
+        min: new Pos3D(Math.min(blocks[0].x, blocks[1].x),
+            Math.min(blocks[0].y, blocks[1].y),
+            Math.min(blocks[0].z, blocks[1].z)),
+        max: new Pos3D(Math.max(blocks[0].x, blocks[1].x),
+            Math.max(blocks[0].y, blocks[1].y),
+            Math.max(blocks[0].z, blocks[1].z))
+    };
+}
+
+/**
+ * highlight an area defined by two points
+ * @param {Record<String, Pos3D>} bounds
+ * @returns {Draw3D}
+ */
+function drawBoxFromPoints(bounds) {
+    box = Hud.createDraw3D().boxBuilder().pos1(bounds.min).pos2(bounds.max.add(0, 1, 0)).color(0xFF8800).build();
+    draw3d.addBox(box);
+    return draw3d;
+}
+
+
+/**
  * Sorts the items stored in the chests based on the signs.
  * The sorting is done by picking the first chest from the list,
  * picking the item from the chest and putting it in the first
@@ -302,14 +361,31 @@ function cleanItemChests(pos, itemChests) {
  * when there are no items left to sort.
  */
 function sort() {
-    const sortChests = findSign('sort').map(signToChest); // list of chests to sort
-    let itemChests = findItemsStorage(); // dictionary of storage locations for each item
+    // Selects two points in the world and returns them as a bounding box
+    const bounds = selectPoints();
+    if (stop()) return;
+    // Highlights the selected area on the screen
+    drawBoxFromPoints(bounds);
+
+    // 3 seconds countdown for sorting to start
+    for (let i = 0; i < 3; i++) {
+        if (stop()) return; // checks if script is being stopped/interrupted
+        Time.sleep(1000);
+        Chat.actionbar(Chat.createTextBuilder().append("Sorting starts in ").withColor(0xF)
+            .append(`${3 - i}`).withColor(0x6)
+            .build());
+    }
+    Time.sleep(1000);
+    if (stop()) return;
+    Chat.actionbar(Chat.createTextBuilder().append("Sorting ...").withColor(0x2)
+        .build());
+
+    const sortChests = findSign('sort', bounds).map(signToChest); // list of chests to sort
+    let itemChests = findItemsStorage(bounds); // dictionary of storage locations for each item
     let inv;
 
     // Main loop for each chest sorting chest
     while (sortChests.length > 0) {
-        if (stop()) return; // checks if script is being stopped/interrupted
-
         // open the chest and pick the items and keep track of them
         openChest(sortChests[0]);
         if (stop()) return;
@@ -339,7 +415,6 @@ function sort() {
 
         // loop through each item that needs to be sorted
         while (items.length > 0) {
-            if (stop()) return;
 
             // if item is removed from sorting elsewhere, discard that
             if (!Object.hasOwn(itemChests, items[0])) {
@@ -349,6 +424,7 @@ function sort() {
 
             const storage = itemChests[items[0]][0]; // pick the first storage location for the item and open it
             openChest(storage);
+            if (stop()) return;
             Client.waitTick(5);
             const inv = Player.openInventory();
             Client.waitTick(5);
@@ -389,11 +465,11 @@ function sort() {
             Client.waitTick(5);
         }
     }
+    Chat.actionbar(Chat.createTextBuilder().append("Sorting Finished").withColor(0x6)
+        .build());
 }
 GlobalVars.putBoolean('storageSorterRunning', false);
 if (GlobalVars.getBoolean('storageSorterToggle')) {
-    Chat.log(Chat.createTextBuilder().append('Storage Sorter ').withColor(255, 255, 255)
-        .append('Finished').withColor(215, 188, 0));
     GlobalVars.putBoolean('storageSorterToggle', false);
 }
-
+draw3d.unregister();

@@ -28,7 +28,21 @@ if (GlobalVars.getBoolean('storage_sorter_running')) {
  * @returns {boolean} true if storage sorter is disabled
  */
 function stop() {
-    return !GlobalVars.getBoolean("storage_sorter_toggle");
+    return !GlobalVars.getBoolean('storage_sorter_toggle');
+}
+
+/**
+ * Checks if a given point is inside a box defined by two other points.
+ *
+ * @param {Pos3D} point - The point to check.
+ * @param {Pos3D} min - The minimum coordinates of the box.
+ * @param {Pos3D} max - The maximum coordinates of the box.
+ * @returns {boolean} True if the point is inside the box, false otherwise.
+ */
+function isInsideBox(point, min, max) {
+    return point.x >= min.x && point.x <= max.x &&
+        point.y >= min.y && point.y <= max.y &&
+        point.z >= min.z && point.z <= max.z;
 }
 
 /**
@@ -72,7 +86,7 @@ function smoothLook(x, y, z, speed = 2) {
 
 /**
  * return an array of x, y, z from a Pos3D object
- * @param {Pos3D} pos 
+ * @param {Pos3D} pos
  * @returns {number[]}
  */
 function pos3dToArray(pos) {
@@ -81,7 +95,7 @@ function pos3dToArray(pos) {
 
 /**
  * finds all signs in 3 chunk radius around the player that contains the given text
- * @param {string} text 
+ * @param {string} text
  * @returns {Pos3D[]} a list of all signs that have the text
  */
 function findSign(text) {
@@ -229,9 +243,9 @@ function findItemInPlayer(item, inv) {
 
 /**
  * Check if inventory is empty of interesting items
- * @param {Inventory<*>} inv 
+ * @param {Inventory<*>} inv
  * @param {Record<String, Pos3D[]>} itemChests
- * @returns 
+ * @returns
  */
 function isContainerEmpty(inv, itemChests) {
     for (const i of inv.getMap().container) {
@@ -244,8 +258,8 @@ function isContainerEmpty(inv, itemChests) {
 
 /**
  * Check if inventory has no empty slot
- * @param {Inventory<*>} inv 
- * @returns 
+ * @param {Inventory<*>} inv
+ * @returns
  */
 function isContainerFull(inv) {
     if (stop()) return;
@@ -279,12 +293,12 @@ function clean_item_chests(pos, itemChests) {
 
 /**
  * Sorts the items stored in the chests based on the signs.
- * The sorting is done by picking the first chest from the list, 
- * picking the item from the chest and putting it in the first 
- * available storage location. If the storage is full, the 
+ * The sorting is done by picking the first chest from the list,
+ * picking the item from the chest and putting it in the first
+ * available storage location. If the storage is full, the
  * storage location is removed from the list of the item.
- * 
- * The function stops when there are no more chests to sort or 
+ *
+ * The function stops when there are no more chests to sort or
  * when there are no items left to sort.
  */
 function sort() {

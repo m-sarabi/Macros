@@ -33,8 +33,7 @@ function stop() {
     if (GlobalVars.getBoolean('storageSorterToggle')) {
         return false;
     }
-    if (draw3d) draw3d.unregister();
-    JsMacros.disableAllListeners("AttackBlock");
+    draw3d.unregister();
     return true;
 }
 

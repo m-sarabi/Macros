@@ -8,16 +8,16 @@ for (const item of rawItems) {
 }
 
 // if script is running
-if (GlobalVars.getBoolean('storage_sorter_running')) {
+if (GlobalVars.getBoolean('storageSorterRunning')) {
     // if script is enabled disable it and sho a message
-    if (GlobalVars.getBoolean('storage_sorter_toggle')) {
+    if (GlobalVars.getBoolean('storageSorterToggle')) {
         Chat.log(Chat.createTextBuilder().append('Storage Sorter ').withColor(255, 255, 255)
             .append('Disabled').withColor(192, 0, 0));
-        GlobalVars.putBoolean('storage_sorter_toggle', false);
+        GlobalVars.putBoolean('storageSorterToggle', false);
     }
 } else { // if script is not running, run it
-    GlobalVars.putBoolean('storage_sorter_toggle', true);
-    GlobalVars.putBoolean('storage_sorter_running', true);
+    GlobalVars.putBoolean('storageSorterToggle', true);
+    GlobalVars.putBoolean('storageSorterRunning', true);
     Chat.log(Chat.createTextBuilder().append('Storage Sorter ').withColor(255, 255, 255)
         .append('Enabled').withColor(0, 192, 0));
     sort();
@@ -28,7 +28,7 @@ if (GlobalVars.getBoolean('storage_sorter_running')) {
  * @returns {boolean} true if storage sorter is disabled
  */
 function stop() {
-    return !GlobalVars.getBoolean('storage_sorter_toggle');
+    return !GlobalVars.getBoolean('storageSorterToggle');
 }
 
 /**
@@ -390,9 +390,10 @@ function sort() {
         }
     }
 }
-GlobalVars.putBoolean('storage_sorter_running', false);
-if (GlobalVars.getBoolean('storage_sorter_toggle')) {
+GlobalVars.putBoolean('storageSorterRunning', false);
+if (GlobalVars.getBoolean('storageSorterToggle')) {
     Chat.log(Chat.createTextBuilder().append('Storage Sorter ').withColor(255, 255, 255)
         .append('Finished').withColor(215, 188, 0));
-    GlobalVars.putBoolean('storage_sorter_toggle', false);
+    GlobalVars.putBoolean('storageSorterToggle', false);
 }
+

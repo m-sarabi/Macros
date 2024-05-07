@@ -1,0 +1,135 @@
+{
+    "c:diamond": [
+        "diamond_block",
+        "diamond_ore",
+        "deepslate_diamond_ore",
+        "diamond"
+    ],
+    "c:emerald": [
+        "emerald_block",
+        "emerald_ore",
+        "deepslate_emerald_ore",
+        "emerald"
+    ],
+    "c:gold": [
+        "gold_block",
+        "gold_ore",
+        "deepslate_gold_ore",
+        "nether_gold_ore",
+        "raw_gold_block",
+        "raw_gold",
+        "gold_nugget",
+        "gold_ingot"
+    ],
+    "c:iron": [
+        "iron_block",
+        "iron_ore",
+        "deepslate_iron_ore",
+        "raw_iron_block",
+        "raw_iron",
+        "iron_nugget",
+        "iron_ingot"
+    ],
+    "c:copper": [
+        "copper_block",
+        "copper_ore",
+        "deepslate_copper_ore",
+        "raw_copper_block",
+        "raw_copper",
+        "copper_ingot"
+    ],
+    "c:coal": [
+        "coal_block",
+        "coal_ore",
+        "deepslate_coal_ore",
+        "coal",
+        "charcoal"
+    ],
+    "c:lapis": [
+        "lapis_block",
+        "lapis_ore",
+        "deepslate_lapis_ore",
+        "lapis_lazuli"
+    ],
+    "c:redstone": [
+        "redstone_block",
+        "redstone_ore",
+        "deepslate_redstone_ore",
+        "redstone"
+    ],
+    "c:netherite": [
+        "netherite_block",
+        "netherite_scrap",
+        "netherite_ingot",
+        "ancient_debris"
+    ],
+    "c:quartz": [
+        "quartz_block",
+        "nether_quartz_ore",
+        "quartz"
+    ],
+    "c:woods": [
+        "oak_log",
+        "spruce_log",
+        "birch_log",
+        "jungle_log",
+        "acacia_log",
+        "dark_oak_log",
+        "cherry_log",
+        "crimson_stem",
+        "warped_stem",
+        "oak_planks",
+        "spruce_planks",
+        "birch_planks",
+        "jungle_planks",
+        "acacia_planks",
+        "dark_oak_planks",
+        "cherry_planks",
+        "crimson_planks",
+        "warped_planks"
+    ],
+    "c:stone": [
+        "stone",
+        "andesite",
+        "diorite",
+        "granite",
+        "cobblestone",
+        "deepslate",
+        "tuff"
+    ],
+    "c:nether": [
+        "netherrack",
+        "nether_bricks",
+        "soul_sand",
+        "soul_soil"
+    ],
+    "c:end": [
+        "end_stone",
+        "end_stone_bricks",
+        "obsidian"
+    ],
+    "c:crops": [
+        "wheat",
+        "wheat_seeds",
+        "carrot",
+        "potato",
+        "beetroot",
+        "beetroot_seeds",
+        "pumpkin",
+        "pumpkin_seeds",
+        "melon",
+        "melon_slice",
+        "melon_seeds",
+        "cocoa_beans",
+        "sugar_cane",
+        "sweet_berries",
+        "brown_mushroom",
+        "red_mushroom",
+        "cactus",
+        "kelp",
+        "glow_berries",
+        "nether_wart",
+        "chorus_flower",
+        "chorus_fruit"
+    ]
+}

@@ -343,7 +343,7 @@ function selectPoints() {
  * @returns {Draw3D}
  */
 function drawBoxFromPoints(bounds) {
-    box = Hud.createDraw3D().boxBuilder().pos1(bounds.min).pos2(bounds.max.add(0, 1, 0)).color(0xFF8800).build();
+    box = Hud.createDraw3D().boxBuilder().pos1(bounds.min).pos2(bounds.max.add(1, 1, 1)).color(0xFF8800).build();
     draw3d.addBox(box);
     return draw3d;
 }

@@ -8,6 +8,10 @@ for (const item of rawItems) {
     ITEMS.push([item.getId().split(':')[1], item.getName().toLowerCase()]);
 }
 
+// Read the config file
+/** @type {Record<String, ItemId} */
+const CAT = FS.exists("configs/storage_sorter_config.json") ? JSON.parse(FS.open("configs/storage_sorter_config.json").read()) : null;
+
 // if script is running
 if (GlobalVars.getBoolean('storageSorterRunning')) {
     // if script is enabled disable it and sho a message
@@ -143,6 +147,7 @@ function findItemsStorage(bounds) {
     /** @type {Record<String,Pos3D>} */
     const storages = {};
 
+
     // loop through each signs found
     for (const sign of signs) {
         const linesNBT = World.getBlock(sign).getNBT().resolve('front_text.messages').at(0).asListHelper();
@@ -160,6 +165,16 @@ function findItemsStorage(bounds) {
                     storages[itemId].push(signToChest(sign));
                 } else {
                     storages[itemId] = [signToChest(sign)];
+                }
+                continue;
+            } else if (Object.keys(CAT).includes(line)) {
+                itemId = CAT[line];
+                for (let item of itemId) {
+                    if (Object.hasOwn(storages, item)) {
+                        storages[item].push(signToChest(sign));
+                    } else {
+                        storages[item] = [signToChest(sign)];
+                    }
                 }
             }
         }

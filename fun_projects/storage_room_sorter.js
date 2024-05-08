@@ -453,6 +453,19 @@ function sort() {
             }
 
             const storage = itemChests[items[0]][0]; // pick the first storage location for the item and open it
+
+            // items that can go to current storage
+            const storageItems = [];
+            items.forEach(item => {
+                itemChests[item].some(pos => {
+                    if (samePos(pos, storage)) {
+                        storageItems.push(item);
+                        return true;
+                    }
+                    return false;
+                });
+            });
+
             openChest(storage);
             if (stop()) return;
             Client.waitTick(5);
@@ -470,26 +483,39 @@ function sort() {
                 Client.waitTick(5);
                 continue;
             }
-
-            // Pick up the item from the player and put it in the storage
-            inv.quickAll(findItemInPlayer(items[0], inv)[0]);
-            if (findItemInPlayer(items[0], inv).length == 0) {
-                items.shift();
-                Client.waitTick(5);
-                inv.closeAndDrop();
-                Client.waitTick(5);
-                continue;
-            }
-            Client.waitTick();
-
-            // handle it when storage is full
-            if (isContainerFull(inv)) {
-                itemChests[items[0]].shift();
-                if (itemChests[items[0]].length == 0) {
-                    delete itemChests[items[0]];
+            storageItems.every(item => {
+                inv.quickAll(findItemInPlayer(item, inv)[0]);
+                if (findItemInPlayer(item, inv).length == 0) {
                     items.shift();
                 }
-            }
+                if (isContainerFull(inv)) {
+                    itemChests = cleanItemChests(storage, itemChests);
+                    if (!Object.hasOwn(itemChests, items[0])) {
+                        items.shift();
+                    }
+                    return false;
+                }
+                return true;
+            });
+
+            // inv.quickAll(findItemInPlayer(items[0], inv)[0]);
+            // if (findItemInPlayer(items[0], inv).length == 0) {
+            //     items.shift();
+            //     Client.waitTick(5);
+            //     inv.closeAndDrop();
+            //     Client.waitTick(5);
+            //     continue;
+            // }
+            // Client.waitTick();
+
+            // // handle it when storage is full
+            // if (isContainerFull(inv)) {
+            //     itemChests[items[0]].shift();
+            //     if (itemChests[items[0]].length == 0) {
+            //         delete itemChests[items[0]];
+            //         items.shift();
+            //     }
+            // }
             Client.waitTick(5);
             inv.closeAndDrop();
             Client.waitTick(5);

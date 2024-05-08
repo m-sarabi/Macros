@@ -1,4 +1,8 @@
 {
+    "lowercase_category_name": [
+        "example_item1",
+        "example_item2"
+    ],
     "c:diamond": [
         "diamond_block",
         "diamond_ore",

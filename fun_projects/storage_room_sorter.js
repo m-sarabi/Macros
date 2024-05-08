@@ -379,6 +379,18 @@ function samePos(pos1, pos2) {
     return false;
 }
 
+/**
+ * Removes a specific value from an array
+ * @param {Array} arr - The array to remove the value from
+ * @param {*} value - The value to be removed
+ */
+function removeFromArray(arr, value) {
+    const index = arr.indexOf(value);
+    if (index !== -1) {
+        arr.splice(index, 1);
+    }
+}
+
 
 /**
  * Sorts the items stored in the chests based on the signs.
@@ -484,14 +496,16 @@ function sort() {
                 continue;
             }
             storageItems.every(item => {
+                Chat.log(item);
                 inv.quickAll(findItemInPlayer(item, inv)[0]);
+                Client.waitTick();
                 if (findItemInPlayer(item, inv).length == 0) {
-                    items.shift();
+                    removeFromArray(items, item);
                 }
                 if (isContainerFull(inv)) {
                     itemChests = cleanItemChests(storage, itemChests);
                     if (!Object.hasOwn(itemChests, items[0])) {
-                        items.shift();
+                        removeFromArray(items, item);
                     }
                     return false;
                 }

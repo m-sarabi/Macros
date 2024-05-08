@@ -496,7 +496,6 @@ function sort() {
                 continue;
             }
             storageItems.every(item => {
-                Chat.log(item);
                 inv.quickAll(findItemInPlayer(item, inv)[0]);
                 Client.waitTick();
                 if (findItemInPlayer(item, inv).length == 0) {

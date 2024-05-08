@@ -363,6 +363,22 @@ function drawBoxFromPoints(bounds) {
     return draw3d;
 }
 
+/**
+ * Checks if two Pos3D objects are referring to the same block
+ * @param {Pos3D} pos1 
+ * @param {Pos3D} pos2
+ * @returns {Boolean} 
+ */
+function samePos(pos1, pos2) {
+    if (pos1.x == pos2.x &&
+        pos1.y == pos2.y &&
+        pos1.z == pos2.z
+    ) {
+        return true;
+    }
+    return false;
+}
+
 
 /**
  * Sorts the items stored in the chests based on the signs.

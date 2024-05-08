@@ -511,24 +511,6 @@ function sort() {
                 return true;
             });
 
-            // inv.quickAll(findItemInPlayer(items[0], inv)[0]);
-            // if (findItemInPlayer(items[0], inv).length == 0) {
-            //     items.shift();
-            //     Client.waitTick(5);
-            //     inv.closeAndDrop();
-            //     Client.waitTick(5);
-            //     continue;
-            // }
-            // Client.waitTick();
-
-            // // handle it when storage is full
-            // if (isContainerFull(inv)) {
-            //     itemChests[items[0]].shift();
-            //     if (itemChests[items[0]].length == 0) {
-            //         delete itemChests[items[0]];
-            //         items.shift();
-            //     }
-            // }
             Client.waitTick(5);
             inv.closeAndDrop();
             Client.waitTick(5);

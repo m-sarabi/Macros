@@ -120,7 +120,8 @@ function findSign(text, bounds) {
     // loop through each signs found
     for (const sign of signs) {
         // get the front text of each sign
-        const linesNBT = World.getBlock(sign).getNBT().get('front_text').resolve('messages').at(0).asListHelper();
+        const linesNBT = World.getBlock(sign).getNBT().get('front_text').asCompoundHelper().get('messages').asListHelper();
+        Chat.log(linesNBT);
         for (let i = 0; i < linesNBT.length(); i++) {
             const line = linesNBT.get(i).asString().replaceAll('"', '').toLowerCase();
             // check if sign includes the given text
@@ -150,7 +151,7 @@ function findItemsStorage(bounds) {
 
     // loop through each signs found
     for (const sign of signs) {
-        const linesNBT = World.getBlock(sign).getNBT().get('front_text').resolve('messages').at(0).asListHelper();
+        const linesNBT = World.getBlock(sign).getNBT().get('front_text').asCompoundHelper().get('messages').asListHelper();
         for (let i = 0; i < linesNBT.length(); i++) {
             const line = linesNBT.get(i).asString().replaceAll('"', '').toLowerCase();
             let itemId;

@@ -168,7 +168,7 @@ function findItemsStorage(bounds) {
                     storages[itemId] = [signToChest(sign)];
                 }
                 continue;
-            } else if (Object.keys(CAT).includes(line)) {
+            } else if (CAT != null && Object.keys(CAT).includes(line)) {
                 itemId = CAT[line];
                 for (let item of itemId) {
                     if (Object.hasOwn(storages, item)) {

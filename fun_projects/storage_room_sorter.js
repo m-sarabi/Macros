@@ -122,7 +122,7 @@ function findSign(text, bounds) {
         // get the front text of each sign
         const linesNBT = World.getBlock(sign).getNBT().get('front_text').asCompoundHelper().get('messages').asListHelper();
         for (let i = 0; i < linesNBT.length(); i++) {
-            const line = linesNBT.get(i).asString().replaceAll('"', '').toLowerCase();
+            const line = linesNBT.get(i).asString().replaceAll('"', '').toLowerCase().trim();
             // check if sign includes the given text
             if (line.includes(text.toLowerCase())) {
                 matches.push(sign);
@@ -152,7 +152,7 @@ function findItemsStorage(bounds) {
     for (const sign of signs) {
         const linesNBT = World.getBlock(sign).getNBT().get('front_text').asCompoundHelper().get('messages').asListHelper();
         for (let i = 0; i < linesNBT.length(); i++) {
-            const line = linesNBT.get(i).asString().replaceAll('"', '').toLowerCase();
+            const line = linesNBT.get(i).asString().replaceAll('"', '').toLowerCase().trim();
             let itemId;
             if (ITEMS.some(e => {
                 if (e.includes(line)) {

@@ -121,7 +121,6 @@ function findSign(text, bounds) {
     for (const sign of signs) {
         // get the front text of each sign
         const linesNBT = World.getBlock(sign).getNBT().get('front_text').asCompoundHelper().get('messages').asListHelper();
-        Chat.log(linesNBT);
         for (let i = 0; i < linesNBT.length(); i++) {
             const line = linesNBT.get(i).asString().replaceAll('"', '').toLowerCase();
             // check if sign includes the given text
